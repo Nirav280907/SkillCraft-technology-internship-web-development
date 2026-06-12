@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lumina — Design Studio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --clr-bg: #0A0A0F;
+      --clr-surface: #13131A;
+      --clr-accent: #7C6AF7;
+      --clr-accent2: #F76AC5;
+      --clr-text: #E8E8F0;
+      --clr-muted: #72728A;
+      --nav-h: 72px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--clr-bg);
+      color: var(--clr-text);
+      overflow-x: hidden;
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1000;
+      height: var(--nav-h);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 5vw;
+      transition: background 0.4s ease, backdrop-filter 0.4s ease,
+                  box-shadow 0.4s ease, height 0.3s ease;
+    }
+
+    nav.scrolled {
+      background: rgba(10, 10, 15, 0.82);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      box-shadow: 0 1px 0 rgba(124, 106, 247, 0.18),
+                  0 8px 32px rgba(0,0,0,0.5);
+      height: 60px;
+    }
+
+    .nav-logo {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--clr-text);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .nav-logo span.dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--clr-accent);
+      display: inline-block;
+      box-shadow: 0 0 12px var(--clr-accent);
+      transition: transform 0.3s ease;
+    }
+    .nav-logo:hover .dot { transform: scale(1.5); }
+
+    /* Desktop links */
+    .nav-links {
+      display: flex;
+      gap: 36px;
+      list-style: none;
+      align-items: center;
+    }
+
+    .nav-links a {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--clr-muted);
+      text-decoration: none;
+      letter-spacing: 0.04em;
+      position: relative;
+      padding: 4px 0;
+      transition: color 0.25s ease;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -2px; left: 0;
+      width: 0; height: 1.5px;
+      background: linear-gradient(90deg, var(--clr-accent), var(--clr-accent2));
+      border-radius: 2px;
+      transition: width 0.3s ease;
+    }
+
+    .nav-links a:hover { color: var(--clr-text); }
+    .nav-links a:hover::after { width: 100%; }
+    .nav-links a.active { color: var(--clr-text); }
+    .nav-links a.active::after { width: 100%; }
+
+    /* CTA button */
+    .nav-cta {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--clr-text);
+      background: linear-gradient(135deg, var(--clr-accent), var(--clr-accent2));
+      border: none;
+      border-radius: 100px;
+      padding: 10px 22px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: opacity 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 0 20px rgba(124,106,247,0.3);
+    }
+    .nav-cta:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 24px rgba(124,106,247,0.5);
+    }
+
+    /* Hamburger */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 6px;
+      background: none;
+      border: none;
+      z-index: 1001;
+    }
+    .hamburger span {
+      display: block;
+      width: 24px; height: 2px;
+      background: var(--clr-text);
+      border-radius: 2px;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* Mobile drawer */
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      background: rgba(10,10,15,0.97);
+      backdrop-filter: blur(20px);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 40px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .mobile-menu.open { opacity: 1; pointer-events: all; }
+    .mobile-menu a {
+      font-family: 'Syne', sans-serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--clr-muted);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+    .mobile-menu a:hover { color: var(--clr-text); }
+
+    /* ─── SECTIONS ─── */
+    section {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: calc(var(--nav-h) + 60px) 5vw 80px;
+    }
+
+    /* Hero */
+    #home {
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(124,106,247,0.15) 0%, transparent 70%);
+      flex-direction: column;
+      text-align: center;
+      gap: 32px;
+    }
+
+    .eyebrow {
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--clr-accent);
+      font-weight: 500;
+    }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.8rem, 8vw, 7rem);
+      font-weight: 800;
+      line-height: 1.0;
+      letter-spacing: -0.04em;
+    }
+
+    h1 .grad {
+      background: linear-gradient(135deg, var(--clr-accent), var(--clr-accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      max-width: 520px;
+      color: var(--clr-muted);
+      font-size: 1.1rem;
+      line-height: 1.7;
+    }
+
+    .btn-group { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+
+    .btn-primary {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 500;
+      background: linear-gradient(135deg, var(--clr-accent), var(--clr-accent2));
+      color: #fff;
+      border: none;
+      border-radius: 100px;
+      padding: 14px 32px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 0 28px rgba(124,106,247,0.4);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(124,106,247,0.5); }
+
+    .btn-ghost {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--clr-text);
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 100px;
+      padding: 14px 32px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .btn-ghost:hover { border-color: var(--clr-accent); background: rgba(124,106,247,0.08); }
+
+    /* Section styles */
+    .section-inner {
+      max-width: 1100px;
+      width: 100%;
+    }
+
+    .section-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--clr-accent);
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2rem, 5vw, 3.8rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin-bottom: 24px;
+    }
+
+    /* Works grid */
+    #work { background: var(--clr-surface); }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 48px;
+    }
+    .card {
+      background: var(--clr-bg);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px;
+      padding: 36px 28px;
+      transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card:hover {
+      border-color: rgba(124,106,247,0.4);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(124,106,247,0.15);
+    }
+    .card-icon {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, rgba(124,106,247,0.2), rgba(247,106,197,0.2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem;
+      margin-bottom: 20px;
+    }
+    .card h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .card p { font-size: 0.875rem; color: var(--clr-muted); line-height: 1.7; }
+
+    /* About */
+    #about { flex-direction: column; align-items: flex-start; }
+    #about .section-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+    .about-visual {
+      aspect-ratio: 1;
+      border-radius: 24px;
+      background: linear-gradient(135deg, rgba(124,106,247,0.3), rgba(247,106,197,0.15));
+      border: 1px solid rgba(124,106,247,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 5rem;
+    }
+    .about-text p { color: var(--clr-muted); line-height: 1.8; font-size: 0.95rem; margin-bottom: 20px; }
+
+    /* Contact */
+    #contact {
+      background: radial-gradient(ellipse 60% 50% at 50% 100%, rgba(124,106,247,0.12), transparent 70%);
+      flex-direction: column;
+      text-align: center;
+    }
+    #contact .section-inner { text-align: center; }
+    #contact .hero-sub { margin: 0 auto 40px; }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding: 32px 5vw;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--clr-muted);
+      font-size: 0.8rem;
+    }
+
+    /* Scroll reveal */
+    .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .grid-3 { grid-template-columns: 1fr 1fr; }
+      #about .section-inner { grid-template-columns: 1fr; gap: 40px; }
+      .about-visual { max-width: 280px; }
+    }
+
+    @media (max-width: 640px) {
+      .nav-links, .nav-cta { display: none; }
+      .hamburger { display: flex; }
+      .mobile-menu { display: flex; }
+      .grid-3 { grid-template-columns: 1fr; }
+      footer { flex-direction: column; gap: 12px; text-align: center; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition: none !important; }
+      .reveal { opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="main-nav">
+  <a href="#home" class="nav-logo">
+    Lumina <span class="dot"></span>
+  </a>
+  <ul class="nav-links" id="nav-links">
+    <li><a href="#home"    class="nav-link">Home</a></li>
+    <li><a href="#work"    class="nav-link">Work</a></li>
+    <li><a href="#about"   class="nav-link">About</a></li>
+    <li><a href="#contact" class="nav-link">Contact</a></li>
+  </ul>
+  <a href="#contact" class="nav-cta">Start a project</a>
+  <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobile-menu">
+  <a href="#home"    class="mob-link">Home</a>
+  <a href="#work"    class="mob-link">Work</a>
+  <a href="#about"   class="mob-link">About</a>
+  <a href="#contact" class="mob-link">Contact</a>
+  <a href="#contact" class="btn-primary" style="margin-top:8px">Start a project</a>
+</div>
+
+<!-- HERO -->
+<section id="home">
+  <p class="eyebrow reveal">Creative design studio</p>
+  <h1 class="reveal">We craft<br><span class="grad">digital futures.</span></h1>
+  <p class="hero-sub reveal">Lumina builds interfaces, brands, and experiences that make people stop and pay attention. Work that doesn't look like work.</p>
+  <div class="btn-group reveal">
+    <a href="#work" class="btn-primary">See our work</a>
+    <a href="#about" class="btn-ghost">About us</a>
+  </div>
+</section>
+
+<!-- WORK -->
+<section id="work">
+  <div class="section-inner">
+    <p class="section-label reveal">Selected projects</p>
+    <h2 class="reveal">What we've<br>been building</h2>
+    <div class="grid-3">
+      <div class="card reveal">
+        <div class="card-icon">🎨</div>
+        <h3>Brand Identity</h3>
+        <p>From logo to full visual system — we build brands that hold together across every surface.</p>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon">💻</div>
+        <h3>Web Design</h3>
+        <p>Pixel-precise interfaces built for real humans. Fast, accessible, and impossible to ignore.</p>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon">📱</div>
+        <h3>Mobile Apps</h3>
+        <p>Native-feeling mobile products that users open by choice, not obligation.</p>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon">✦</div>
+        <h3>Motion & Animation</h3>
+        <p>Purposeful movement that guides, delights, and explains — never distracts.</p>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon">🔍</div>
+        <h3>UX Research</h3>
+        <p>We talk to real people, watch how they use things, and design from evidence.</p>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon">⚡</div>
+        <h3>Design Systems</h3>
+        <p>Scalable component libraries that let product teams ship faster without breaking things.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-inner">
+    <div class="about-visual reveal">✦</div>
+    <div class="about-text">
+      <p class="section-label reveal">Who we are</p>
+      <h2 class="reveal">Design as a<br>point of view.</h2>
+      <p class="reveal">We're a small studio — five people, no layers, no bloat. Every project gets the founding team's attention because that's the only way it gets done right.</p>
+      <p class="reveal">We believe the best design is the kind that looks inevitable in retrospect. Getting there takes taste, craft, and a willingness to throw out anything that's merely fine.</p>
+      <a href="#contact" class="btn-primary reveal" style="display:inline-block;margin-top:8px">Work with us</a>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="section-inner">
+    <p class="section-label reveal">Get in touch</p>
+    <h2 class="reveal">Ready to build<br>something great?</h2>
+    <p class="hero-sub reveal">Tell us what you're working on. We read every message and respond within one business day.</p>
+    <a href="mailto:hello@lumina.studio" class="btn-primary reveal">hello@lumina.studio</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span>© 2026 Lumina Studio</span>
+  <span>Chennai · Remote-first</span>
+</footer>
+
+<script>
+  const nav = document.getElementById('main-nav');
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const navLinks = document.querySelectorAll('.nav-link');
+  const sections = document.querySelectorAll('section[id]');
+
+  // ─── Scroll: frosted glass + active link ───
+  function onScroll() {
+    // Frosted nav
+    if (window.scrollY > 30) {
+      nav.classList.add('scrolled');
+    } else {
+      nav.classList.remove('scrolled');
+    }
+
+    // Active section highlight
+    let current = '';
+    sections.forEach(sec => {
+      const top = sec.offsetTop - 100;
+      if (window.scrollY >= top) current = sec.id;
+    });
+    navLinks.forEach(link => {
+      link.classList.toggle('active', link.getAttribute('href') === '#' + current);
+    });
+
+    // Reveal on scroll
+    document.querySelectorAll('.reveal').forEach(el => {
+      if (el.getBoundingClientRect().top < window.innerHeight - 80) {
+        el.classList.add('visible');
+      }
+    });
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll(); // run once on load
+
+  // ─── Hamburger toggle ───
+  hamburger.addEventListener('click', () => {
+    const open = hamburger.classList.toggle('open');
+    mobileMenu.classList.toggle('open', open);
+    document.body.style.overflow = open ? 'hidden' : '';
+  });
+
+  // ─── Close mobile menu on link click ───
+  document.querySelectorAll('.mob-link, .mobile-menu .btn-primary').forEach(link => {
+    link.addEventListener('click', () => {
+      hamburger.classList.remove('open');
+      mobileMenu.classList.remove('open');
+      document.body.style.overflow = '';
+    });
+  });
+
+  // ─── Smooth close on outside click ───
+  mobileMenu.addEventListener('click', e => {
+    if (e.target === mobileMenu) {
+      hamburger.classList.remove('open');
+      mobileMenu.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+  });
+</script>
+</body>
+</html>
